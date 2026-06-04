@@ -1,0 +1,72 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_REGION = 'ap-south-1'
+        ECR_REPO   = '575589967956.dkr.ecr.ap-south-1.amazonaws.com/cloudpulse-app'
+    }
+
+    options {
+        ansiColor('xterm')
+    }
+
+    stages {
+        stage('Confirm Cleanup') {
+            steps {
+                input message: "⚠️ Are you sure? this will delete:\n- Deployment\n- Service (LoadBalancer)\n- Namespace\n- ECR Images", 
+                      ok: 'Yes, Clean it up!'
+            }
+        }
+
+        stage('Configure kubectl') {
+            steps {
+                sh "aws eks update-kubeconfig --region ${AWS_REGION} --name cloudpulse-cluster"
+            }
+        }
+
+        stage('Delete K8s Resources') {
+            steps {
+                sh """
+                    # k8s resources delete
+                    kubectl delete -f k8s/ --ignore-not-found=true
+                """
+            }
+        }
+
+        stage('Delete ECR Images') {
+            steps {
+                sh """
+                    # Fetch all image IDs in the ECR repository
+                    IMAGE_IDS=\$(aws ecr list-images \
+                        --region ${AWS_REGION} \
+                        --repository-name cloudpulse-app \
+                        --query 'imageIds[*]' \
+                        --output json)
+                    
+                    if [ "\$IMAGE_IDS" != "[]" ]; then
+                        aws ecr batch-delete-image \
+                            --region ${AWS_REGION} \
+                            --repository-name cloudpulse-app \
+                            --image-ids "\$IMAGE_IDS"
+                        echo "✅ ECR images deleted"
+                    else
+                        echo "ℹ️ No images found in ECR"
+                    fi
+                """
+            }
+        }
+    }
+
+    post {
+        success {
+            mail to: 'umeshdangi445566@gmail.com',
+                 subject: "🧹 Cleanup #${BUILD_NUMBER} Complete",
+                 body: "App cleanup successful!\n\nDeleted:\n- K8s Deployment\n- K8s Service (LoadBalancer)\n- Namespace cloudpulse\n- ECR Images\n\nBuild: ${BUILD_URL}"
+        }
+        failure {
+            mail to: 'umeshdangi445566@gmail.com',
+                 subject: "❌ Cleanup #${BUILD_NUMBER} Failed",
+                 body: "Cleanup failed! Check: ${BUILD_URL}"
+        }
+    }
+}

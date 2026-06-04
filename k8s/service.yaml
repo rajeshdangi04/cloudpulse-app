@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloudpulse-app
+  namespace: cloudpulse
+  labels:
+    app: cloudpulse-app
+spec:
+  type: LoadBalancer
+  selector:
+    app: cloudpulse-app
+  ports:
+    - name: http
+      port: 80
+      targetPort: 5000
+      protocol: TCP

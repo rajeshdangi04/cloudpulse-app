@@ -3,14 +3,14 @@ pipeline {
 
     environment {
         AWS_REGION   = 'ap-south-1'
-        ECR_REPO     = '<ACCOUNT_ID>.dkr.ecr.ap-south-1.amazonaws.com/cloudpulse-app'
+        ECR_REPO     = '575589967956.dkr.ecr.ap-south-1.amazonaws.com/cloudpulse-app'
         IMAGE_TAG    = "${BUILD_NUMBER}"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/<your-username>/cloudpulse-app.git'
+                git branch: 'main', url: 'https://github.com/rajeshdangi04/cloudpulse-app.git'
             }
         }
 

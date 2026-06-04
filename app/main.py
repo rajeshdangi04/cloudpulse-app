@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-    version = os.getenv("APP_VERSION", "1.0")
+    version = os.getenv("APP_VERSION", "2.0")
     return render_template("index.html", version=version)
 
 

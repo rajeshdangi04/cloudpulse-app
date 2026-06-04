@@ -26,9 +26,6 @@ spec:
           image: 575589967956.dkr.ecr.ap-south-1.amazonaws.com/cloudpulse-app:latest
           ports:
             - containerPort: 5000
-          env:
-            - name: APP_VERSION
-              value: "1.0"
           resources:
             requests:
               cpu: "100m"

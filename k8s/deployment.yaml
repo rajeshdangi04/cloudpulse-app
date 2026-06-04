@@ -24,8 +24,12 @@ spec:
       containers:
         - name: cloudpulse-app
           image: 575589967956.dkr.ecr.ap-south-1.amazonaws.com/cloudpulse-app:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 5000
+          env:
+            - name: APP_VERSION
+              value: "1.0"
           resources:
             requests:
               cpu: "100m"

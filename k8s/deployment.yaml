@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
         - name: cloudpulse-app
-          image: 575589967956.dkr.ecr.ap-south-1.amazonaws.com/cloudpulse-app
+          image: 575589967956.dkr.ecr.ap-south-1.amazonaws.com/cloudpulse-app:latest
           ports:
             - containerPort: 5000
           env:

@@ -7,6 +7,14 @@ pipeline {
         IMAGE_TAG    = "${BUILD_NUMBER}"
     }
 
+    triggers {
+        githubPush()
+    }
+
+    options {
+        ansiColor('xterm')
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -17,9 +25,10 @@ pipeline {
         stage('Lint & Test') {
             steps {
                 dir('app') {
-                    sh 'pip install flake8 -q'
-                    sh 'flake8 main.py --max-line-length=120'
-                    sh 'python -c "import main; print(main.app.name)"'
+                    sh 'pip3 install -r requirements.txt'
+                    sh 'pip3 install flake8 -q'
+                    sh 'python3 -m flake8 main.py --max-line-length=120'
+                    sh 'python3 -c "import main; print(main.app.name)"'
                 }
             }
         }
@@ -27,7 +36,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 dir('app') {
-                    sh "docker build -t ${ECR_REPO}:${IMAGE_TAG} ."
+                    sh "docker build --no-cache -t ${ECR_REPO}:${IMAGE_TAG} ."
                 }
             }
         }
@@ -54,12 +63,12 @@ pipeline {
 
     post {
         success {
-            mail to: 'umeshdangi@gmail.com',
+            mail to: 'umeshdangi445566@gmail.com',
                  subject: "✅ Build #${BUILD_NUMBER} Success",
                  body: "Deployment successful! Image: ${ECR_REPO}:${IMAGE_TAG}"
         }
         failure {
-            mail to: 'umeshdangi@gmail.com',
+            mail to: 'umeshdangi445566@gmail.com',
                  subject: "❌ Build #${BUILD_NUMBER} Failed",
                  body: "Pipeline failed. Check: ${BUILD_URL}"
         }
